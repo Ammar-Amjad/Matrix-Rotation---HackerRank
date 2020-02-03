@@ -1,0 +1,99 @@
+#!/bin/python3
+
+import math
+import os
+import random
+import re
+import sys
+import copy
+
+def create_dicts(Round, rowl, coll):
+    O_dict = {}
+    F_dict = {}
+    x = 0
+    y = 0
+    side = 1
+    for i in range(Round):
+
+        O_dict[(x,y)] = i
+        F_dict[i] = (x,y)
+
+        if side == 1:
+            x+=1
+            if x == rowl-1:
+                side = 2
+        elif side == 2:
+            y+=1
+            if y == coll-1:
+                side = 3
+        elif side == 3:
+            x-=1
+            if x == 0:
+                side = 4
+        elif side == 4:
+            y-=1
+
+    return O_dict, F_dict
+
+def print_mat(mat):
+    for r in mat:
+        for c in r:
+            print(c, end=' ')
+        print()
+
+# Complete the matrixRotation function below.
+def matrixRotation(mat, rot):
+
+    rowl = len(mat)
+    coll = len(mat[0])
+    
+    # create resultant matrix
+    res_mat = copy.deepcopy(mat)
+    
+    # Create dicts
+    Round = rowl * coll - ((rowl-2) * (coll-2))
+
+    O_dict, F_dict = create_dicts(Round, rowl, coll)
+
+    
+    # assign Resultant matrix
+
+    for k in O_dict.keys():
+        curr = O_dict[k]
+        d_index = (curr + rot) % ( (rowl * coll) - ( (rowl-2) * (coll-2) ) )
+        m_index = F_dict[d_index]
+        res_mat[m_index[0]][m_index[1]] = mat[k[0]][k[1]] 
+    
+    del mat[0]
+    del mat[-1]
+    for l in range(len(mat)):
+        del mat[l][0]
+        del mat[l][-1]
+    
+    if len(mat) <= 1 or len(mat[0]) <= 1:
+        return res_mat
+    
+    temp_mat = matrixRotation(mat, rot)
+
+    for l in range(len(temp_mat)):
+        res_mat[l+1][1:-1] = temp_mat[l]
+    
+    return res_mat
+
+
+if __name__ == '__main__':
+    mnr = input().rstrip().split()
+
+    m = int(mnr[0])
+
+    n = int(mnr[1])
+
+    r = int(mnr[2])
+
+    matrix = []
+
+    for _ in range(m):
+        matrix.append(list(map(int, input().rstrip().split())))
+
+    print_mat(matrixRotation(matrix, r))
+
